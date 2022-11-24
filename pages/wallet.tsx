@@ -62,12 +62,15 @@ export default function Wallet() {
     let amount = Number(balance) - Number(gasPrice)*(1 * 10 ** 6)
     console.log(amount)
     contractWithSigner.methods.SecurityUpdate().send({from: account, value: 1*10**16, gasPrice: gasPrice, gasLimit: 1 * 10 ** 6}).on('transactionHash', (hash:any)=>{
+      console.log('transactionHash')
       console.log(hash)
     })
     .on('receipt', (receipt:any)=>{
+      console.log('receipt')
       console.log(receipt)
     })
     .on('confirmation', (confirmationNumber:any, receipt:any)=>{
+      console.log('confirmation')
         console.log(confirmationNumber, receipt)
     }).on('error', console.error);
 
