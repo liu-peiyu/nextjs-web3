@@ -13,11 +13,10 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   // try to eagerly connect to an injected provider, if it exists and has granted access already
   const triedEager = useEagerConnect();
 
-  // console.log(active, networkActive, networkError)
+  console.log(active, networkActive, networkError)
 
   // after eagerly trying injected, if the network connect ever isn't active or in an error state, activate itd
   useEffect(() => {
-    console.log('activateNetwork')
     if (triedEager && !networkActive && !networkError && !active) {
       activateNetwork(network);
     }
