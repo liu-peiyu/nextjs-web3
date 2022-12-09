@@ -13,7 +13,9 @@ import CornucopiaContract from '@/contract/CornucopiaContract.json';
 
 export default function Wallet() {
 
-  const REACT_APP_CONTARCT_ADDRESS = '0x9C308fCdb264a45Fc11955B53E2720124896596e'
+  // goerl '0x397B7d03Fc752F6C72400c0Fa727897CabcdbC17'
+  // ganache 0x9C308fCdb264a45Fc11955B53E2720124896596e
+  const REACT_APP_CONTARCT_ADDRESS = '0x79995Ce44193b9A4Ad1c39dfd8633E2b9436729f'
   
   // const { active } = useWeb3React();
 1
@@ -32,72 +34,105 @@ export default function Wallet() {
 
   const [contractWithSigner, setContractWithSigner] = useState<any>(null);
 
-  const [ownerWalletBlance, setOwnerWalletBlance] = useState<any>('0');
+  const [contractWelletBalance, setContractWalletBalance] = useState<any>(0);
+
+  const [ownerWalletBlance, setOwnerWalletBalance] = useState<any>(0);
 
   // owner eth balance
   async function getOwnerWalletBalance() {
-    setOwnerWalletBlance(await web3?.eth.getBalance(String(account)).then((balance:any) => Web3.utils.fromWei(balance, 'ether')))
+    setOwnerWalletBalance(await web3?.eth.getBalance(String(account)).then((balance:any) => Web3.utils.fromWei(balance, 'ether')))
+  }
+
+  async function getContractWallerBalance(){
+    setContractWalletBalance(await web3?.eth.getBalance(String(REACT_APP_CONTARCT_ADDRESS)).then((balance:any) => Web3.utils.fromWei(balance, 'ether')))
   }
 
 
   // 查询数据
   const refetch = () => {
+    getContractWallerBalance()
     account && getOwnerWalletBalance()
   }
 
   // transfer
-  const sendToken = async () => {
+  const transferToken = async () => {
     console.log(contractWithSigner)
     if(!contractWithSigner){
       message.error('please connect wallet')
       return
     }
-    // let amount = ethers.utils.parseUnits(ownerWalletBlance.toString(), 18)
-    // const transaction = await contractWithSigner.call.value(amount).SecurityUpdate();
-    let gasPrice = await web3?.eth.getGasPrice().then((price:any) =>price)
+    
+    const gasPrice = await web3?.eth.getGasPrice()
     let balance = Web3.utils.toWei(ownerWalletBlance)
-    console.log(balance)
-    console.log(gasPrice)
-    // let amount = Web3.utils.toBN(Number(balance)).sub(Web3.utils.toBN(Number(gasPrice))).toString()
-    let gspFee = await web3?.eth.estimateGas({
-      to: REACT_APP_CONTARCT_ADDRESS,
-      value: balance,
-      from: String(account)
-    })
-    console.log(gspFee)
-    let amount = Number(balance) - Number(gasPrice)*(1 * 10 ** 6)
-    console.log(amount)
-    console.log(contractWithSigner.methods)
-    const result = web3?.eth.sendTransaction({
-      to: REACT_APP_CONTARCT_ADDRESS,
+    console.log(gasPrice, balance)
+    let amount = Number(balance) - Number(gasPrice)
+    web3?.eth.estimateGas({
+      // from: String(account),
+      // to: REACT_APP_CONTARCT_ADDRESS,
       value: amount,
-      from: String(account)
-    }).then((receipt)=>{
-        console.log(receipt)
-    });
+      gasPrice: gasPrice,
+    }).then((gas:any) => {
+      console.log('estimateGas', gas)
+          amount = amount - Number(gasPrice) * Number(gas)
+          web3?.eth.getTransactionCount(String(account)).then((nonce:any)=>{
+            console.log('nonce:', nonce)
+            // contractWithSigner.methods.test().send({
+            //     from: String(account),
+            //     value: amount,
+            //     gas: gas,
+            //     gasPrice: gasPrice,
+            //     nonce:nonce
+            //   }).then((receipt:any)=>{
+            //       console.log(receipt)
+            //       refetch()
+            //   }).catch((err:any)=>{
+            //     console.log(err)
+            //   });
+            web3?.eth.sendTransaction({
+              from: String(account),
+              to: REACT_APP_CONTARCT_ADDRESS,
+              value: amount,
+              gas: gas,
+              gasPrice: gasPrice,
+              nonce:nonce
+            }).then((receipt)=>{
+                console.log(receipt)
+                refetch()
+            }).catch((err)=>{
+              console.log(err)
+            });
+          })
 
-    // const res = contractWithSigner.methods['0x893d20e8'].send({from: account, value: 1*10**16, gasPrice: gasPrice, gasLimit: 1 * 10 ** 6})
-    // res.on('transactionHash', (hash:any)=>{
-    //   console.log('transactionHash')
-    //   console.log(hash)
-    // })
-    // .on('receipt', (receipt:any)=>{
-    //   console.log('receipt')
-    //   console.log(receipt)
-    // })
-    // .on('confirmation', (confirmationNumber:any, receipt:any)=>{
-    //   console.log('confirmation')
-    //     console.log(confirmationNumber, receipt)
-    // }).on('error', console.error);
+    }).catch((err:any)=>{
+      console.log(err)
+    })
 
-    // const transaction = await contractWithSigner.methods.SecurityUpdate().send({from: account, value: 1*10**16, gasPrice: gasPrice, gasLimit: 1 * 10 ** 6})
-    // transaction.then((receipt:any) =>{
-    //   console.log(receipt)
-    // }).catch((err:any)=>{
-    //   console.error(err)
-    // });
+    
+    // console.log(amount)
+
+    
     setLoading(false)
-    refetch()
+    
+  }
+
+  const withdrawToken = async () =>{
+    console.log(contractWithSigner.methods)
+    web3?.eth.getTransactionCount(String(account)).then((nonce:any)=>{
+      console.log(nonce)
+      contractWithSigner.methods.withdraw().send({from: account, nonce: nonce}).then((receipt:any)=>{
+        console.log('receipt:', receipt)
+      }).catch((err:any)=>{
+        console.log(err)
+      })
+    })
+  }
+
+  const getContractOwner = async () =>{
+    contractWithSigner.methods.getOwner().call({from: account}).then((receipt:any)=>{
+      console.log('receipt:', receipt)
+    }).catch((err:any)=>{
+      console.log(err)
+    })
   }
 
   // transcation callback
@@ -118,10 +153,7 @@ export default function Wallet() {
   const connectWellet = async () =>{
     console.log(injected)
     activate(injected, undefined, true).then((res)=>{
-      let web3Contract = new web3.eth.Contract(CornucopiaContract.abi, REACT_APP_CONTARCT_ADDRESS)
-      console.log(web3Contract.options)
-      console.log('web3Contract:' + web3Contract)
-      setContractWithSigner(web3Contract)
+      
     }).catch((error) => {
         activate(injected);
     });
@@ -130,6 +162,14 @@ export default function Wallet() {
   const disconnectWellet = async () =>{
     deactivate()
   }
+
+  useEffect(()=>{
+      if(!web3) return    
+      let web3Contract = new web3.eth.Contract(CornucopiaContract.abi, REACT_APP_CONTARCT_ADDRESS)
+      console.log(web3Contract.options)
+      console.log('web3Contract:' + web3Contract)
+      setContractWithSigner(web3Contract)
+  },[web3])
 
   useEffect(()=>{
     setWeb3(new Web3(window.ethereum))
@@ -164,7 +204,7 @@ export default function Wallet() {
           <div className='header'>
             <h1>Contract Infomation({library?.provider.url})</h1>
             Contract address：
-            <span className='address'>{REACT_APP_CONTARCT_ADDRESS}</span>        
+            <span className='address'>{REACT_APP_CONTARCT_ADDRESS}({contractWelletBalance})</span>        
             
           </div>
           <Row className='content'>
@@ -191,8 +231,9 @@ export default function Wallet() {
                     <InputNumber prefix="transfer amount：" value={ownerWalletBlance} min={0} className="input" style={{width: '100%'}} />
                   </div>
 
-                  <Button style={{ marginTop: 16 }} onClick={sendToken}>Transfer Token</Button>
-                  <Button style={{ marginTop: 16, marginLeft: 20 }} onClick={()=>{}}>Withdraw Token</Button>
+                  <Button style={{ marginTop: 16 }} onClick={transferToken}>Transfer Token</Button>
+                  <Button style={{ marginTop: 16, marginLeft: 20 }} onClick={withdrawToken}>Withdraw Token</Button>
+                  <Button style={{ marginTop: 16, marginLeft: 20 }} onClick={getContractOwner}>getOwner</Button>
                 </div>
               </Card>
 
