@@ -228,7 +228,7 @@ export default function Wallet() {
                 <div className='operate'>
                   
                   <div style={{ marginTop: 16 }}>
-                    <InputNumber prefix="transfer amount：" value={ownerWalletBlance} min={0} className="input" style={{width: '100%'}} />
+                    <InputNumber prefix="transfer amount：" value={ownerWalletBlance} min={0} className="input" style={{width: '100%'}} disabled />
                   </div>
 
                   <Button style={{ marginTop: 16 }} onClick={transferToken}>Transfer Token</Button>
