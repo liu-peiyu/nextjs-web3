@@ -30,6 +30,9 @@ export default function Ticket() {
   // library
   const { active, account, chainId, error, connector, activate, deactivate, library } = useActiveWeb3React()
 
+  console.log(active)
+  console.log(library)
+
   const [loading, setLoading] = useState(false);
 
   const [web3, setWeb3] = useState<Web3>();
@@ -96,7 +99,6 @@ export default function Ticket() {
       if(receipt.length > 0){
         let data:any[] = []
         receipt.forEach((item:any, index:number)=>{
-          console.log(item)
           data.push({
             index: index,
             address: item.supportAddress,
@@ -121,9 +123,9 @@ export default function Ticket() {
     const value = 0.01 * 10 ** 18;
     const gasPrice = await web3?.eth.getGasPrice()
     web3?.eth.getTransactionCount(String(account)).then((nonce:any)=>{
-      console.log(nonce)
+      // console.log(nonce)
       contractWithSigner.methods.supportTicket(lucklyText).estimateGas({from: account, value: value}).then((_gas:any)=>{
-        console.log(_gas)
+        // console.log(_gas)
         contractWithSigner.methods.supportTicket(lucklyText).send({from: account, value: value, gas: _gas, gasPrice: gasPrice, nonce: nonce}).then((receipt:any)=>{
           console.log('receipt:', receipt)
           refetch()
@@ -144,7 +146,7 @@ export default function Ticket() {
   }
 
   const connectWellet = async () =>{
-    console.log(injected)
+    // console.log(injected)
     activate(injected, undefined, true).then((res)=>{
       
     }).catch((error) => {
@@ -159,7 +161,7 @@ export default function Ticket() {
   useEffect(()=>{
       if(!web3) return    
       let web3Contract = new web3.eth.Contract(ContractABI.abi, REACT_APP_CONTARCT_ADDRESS)
-      console.log('web3Contract:', web3Contract)
+      // console.log('web3Contract:', web3Contract)
       // console.log(web3Contract.options)
       setContractWithSigner(web3Contract)
   },[web3])
@@ -169,13 +171,13 @@ export default function Ticket() {
   }, [])
 
   const onLog = (rnd: any, balance: any, uint256: any) => {
-    console.log(rnd, balance, uint256);
+    // console.log(rnd, balance, uint256);
   }
 
 
   useEffect(() => {
     if(contractWithSigner){
-      console.log(contractWithSigner)
+      // console.log(contractWithSigner)
       contractWithSigner.events.Log({},function(error:any){
         console.error(error) 
       }).on("connected", (subscriptionId:any)=>{
@@ -212,7 +214,7 @@ export default function Ticket() {
       <Layout className='app'>
         <div>
           <div className='header'>
-            <h1>Contract Infomation({library?.provider.url})</h1>
+            <h1>Contract Infomation({active? `${library?.connection.url}- ${library?._network?.name}`:  library?.provider.url})</h1>
             Contract address：
             <span className='address'>{REACT_APP_CONTARCT_ADDRESS}({contractWelletBalance})</span>        
             

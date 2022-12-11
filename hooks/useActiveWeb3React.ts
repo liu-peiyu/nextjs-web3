@@ -6,7 +6,8 @@ import { NetworkContextName } from "@/config/index";
 export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> {
   // console.log('useActiveWeb3React')
   const context = useWeb3React<Web3Provider>();
-  const contextNetwork = useWeb3React<Web3Provider>(NetworkContextName);
 
+  const contextNetwork = useWeb3React<Web3Provider>(NetworkContextName);
+  // context 连接钱包的网络  contextNetwork默认页面网络
   return context.active ? { ...context } : { ...contextNetwork };
 }
