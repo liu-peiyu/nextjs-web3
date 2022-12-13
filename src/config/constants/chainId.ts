@@ -95,5 +95,5 @@ export enum ChainId {
     // TELOS = 40,
     // HARDHAT = 31337,
     // MOONBEAM = 1284,
-    GANACHE = 1337
+    GANACHE = 1337,
   }

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useWeb3React } from "@web3-react/core";
+
+import { NoEthereumProviderError, UserRejectedRequestError } from '@web3-react/injected-connector'
+import { UnsupportedChainIdError } from "@web3-react/core";
+
 import { network } from "@/config/constants/wallets";
 import { NetworkContextName } from "@/config/index";
 
@@ -8,7 +12,21 @@ import useInactiveListener from "@/hooks/useInactiveListener";
 
 export default function Web3ReactManager({ children }: { children: JSX.Element }) {
   const { active } = useWeb3React();
-  const { active: networkActive, error: networkError, activate: activateNetwork } = useWeb3React(NetworkContextName);
+  const { active: networkActive, chainId, error: networkError, activate: activateNetwork } = useWeb3React(NetworkContextName);
+
+  const isNoEthereumProviderError = networkError instanceof NoEthereumProviderError
+
+  // console.log(`isNoEthereumProviderError ${isNoEthereumProviderError}`)
+  const isUserRejectedRequestError = networkError instanceof UserRejectedRequestError
+
+  // console.log(`isUserRejectedRequestError ${isUserRejectedRequestError}`)
+
+  const isUnsupportedChainIdError = networkError instanceof UnsupportedChainIdError
+
+  if(isUnsupportedChainIdError){
+    console.log(chainId)
+  }
+  // console.log(`isUnsupportedChainIdError ${isUnsupportedChainIdError}`)
 
   // try to eagerly connect to an injected provider, if it exists and has granted access already
   const triedEager = useEagerConnect();

@@ -7,7 +7,13 @@ export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> {
   // console.log('useActiveWeb3React')
   const context = useWeb3React<Web3Provider>();
 
+  // console.log('context', context)
+
   const contextNetwork = useWeb3React<Web3Provider>(NetworkContextName);
+
+  // console.log('contextNetwork', contextNetwork)
   // context 连接钱包的网络  contextNetwork默认页面网络
-  return context.active ? { ...context } : { ...contextNetwork };
+  // return context.active ? { ...context } : { ...contextNetwork };
+
+  return context
 }

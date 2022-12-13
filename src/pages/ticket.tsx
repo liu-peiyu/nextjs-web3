@@ -21,16 +21,16 @@ export default function Ticket() {
   
   // const { active } = useWeb3React();
 1
-  // active auth status
-  // account address
+  // active (BOOL) is a wallet actively connected right now
+  // account (address) the blockchain address that is connected
   // chainId InjectID
-  // connector
-  // activate function
-  // deactivate function
-  // library
+  // connector the current connector. So, when we connect it will be the injected connector in this example
+  // activate (wallet) the method to connect to a wallet
+  // deactivate the method to disconnect from a wallet
+  // library this is either web3 or ethers, depending what you passed in
   const { active, account, chainId, error, connector, activate, deactivate, library } = useActiveWeb3React()
 
-  console.log(active)
+  console.log(active, chainId, connector)
   console.log(library)
 
   const [loading, setLoading] = useState(false);
@@ -177,7 +177,7 @@ export default function Ticket() {
 
   useEffect(() => {
     if(contractWithSigner){
-      // console.log(contractWithSigner)
+      fetchSupportList()
       contractWithSigner.events.Log({},function(error:any){
         console.error(error) 
       }).on("connected", (subscriptionId:any)=>{
@@ -214,7 +214,7 @@ export default function Ticket() {
       <Layout className='app'>
         <div>
           <div className='header'>
-            <h1>Contract Infomation({active? `${library?.connection.url}- ${library?._network?.name}`:  library?.provider.url})</h1>
+            <h1>Contract Infomation({active? `${library?.connection.url}- ${library?.provider.networkVersion}`:  library?.provider.url})</h1>
             Contract address：
             <span className='address'>{REACT_APP_CONTARCT_ADDRESS}({contractWelletBalance})</span>        
             
@@ -228,7 +228,7 @@ export default function Ticket() {
                   connect account：
                   <span className='address'>{account}</span>
                   {
-                    account!==null ? <Button onClick={disconnectWellet}>Disconnect Wellet</Button>:<Button onClick={connectWellet}>Connect Wellet</Button>
+                    active ? <Button onClick={disconnectWellet}>Disconnect Wellet</Button>:<Button onClick={connectWellet}>Connect Wellet</Button>
                   }
                 </div>
                 <div>
